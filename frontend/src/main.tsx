@@ -11,14 +11,16 @@ import {
   from,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
+import { GraphQLError } from "graphql";
 
-const errorLink = onError(({ graphqlErrors, networkError }) => {
-  if (graphqlErrors) {
-    graphqlErrors.forEach((message: string) => {
+const errorLink = onError(({ graphQLErrors }) => {
+  if (graphQLErrors) {
+    graphQLErrors.forEach((message: GraphQLError) => {
       alert("graphql error " + message);
     });
   }
 });
+
 const link = from([
   errorLink,
   new HttpLink({ uri: import.meta.env.VITE_GRAPHQL_URL }),
@@ -26,7 +28,7 @@ const link = from([
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  link: link(),
+  link: link,
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
