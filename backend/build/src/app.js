@@ -20,6 +20,10 @@ const server_1 = require("@apollo/server");
 const express4_1 = require("@apollo/server/express4");
 const drainHttpServer_1 = require("@apollo/server/plugin/drainHttpServer");
 const graphql_1 = require("./graphql");
+const spotifyAuth_1 = __importDefault(require("./routes/spotifyAuth"));
+const body_parser_1 = __importDefault(require("body-parser"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const middleware_1 = require("./middleware");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 4000;
@@ -31,10 +35,18 @@ const bootstrapServer = () => __awaiter(void 0, void 0, void 0, function* () {
         plugins: [(0, drainHttpServer_1.ApolloServerPluginDrainHttpServer)({ httpServer })],
     });
     yield server.start();
+    // parse application/x-www-form-urlencoded
+    app.use(body_parser_1.default.urlencoded({ extended: false }));
+    // parse application/json
+    app.use(body_parser_1.default.json());
     app.use((0, cors_1.default)());
     app.use(express_1.default.json());
     app.use(express_1.default.urlencoded({ extended: true }));
+    app.use(middleware_1.disallowTrace);
+    app.use((0, cookie_parser_1.default)());
+    app.use(middleware_1.decodeToken);
     app.use("/graphql", (0, express4_1.expressMiddleware)(server));
+    app.use("/spotifyauth", spotifyAuth_1.default);
     app.get("/", (req, res) => {
         res.send("Hello World!");
     });

@@ -1,5 +1,4 @@
 import express from "express";
-import { Request, Response } from "express";
 import cors from "cors";
 import http from "http";
 import dotenv from "dotenv";
@@ -10,6 +9,7 @@ import { typeDefs, resolvers } from "./graphql";
 import spotifyAuthRouter from "./routes/spotifyAuth";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import { decodeToken, disallowTrace } from "./middleware";
 
 dotenv.config();
 const app = express();
@@ -32,10 +32,18 @@ const bootstrapServer = async () => {
   app.use(bodyParser.json());
 
   app.use(cors());
+  app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL + "");
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', 'true'); // Allow credentials
+    next();
+  });
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(disallowTrace);
   app.use(cookieParser());
+  app.use(decodeToken);
   app.use("/graphql", expressMiddleware(server));
 
   app.use("/spotifyauth", spotifyAuthRouter);
@@ -51,23 +59,3 @@ const bootstrapServer = async () => {
 };
 
 bootstrapServer();
-
-function disallowTrace(req: Request, res: Response, next: Function) {
-  // NOTE: Exclude TRACE and TRACK methods to avoid XST attacks.
-  const allowedMethods = [
-    "OPTIONS",
-    "HEAD",
-    "CONNECT",
-    "GET",
-    "POST",
-    "PUT",
-    "DELETE",
-    "PATCH",
-  ];
-
-  if (!allowedMethods.includes(req.method)) {
-    res.status(405).send(`${req.method} not allowed.`);
-  }
-
-  next();
-};

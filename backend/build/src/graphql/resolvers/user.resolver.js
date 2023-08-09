@@ -25,7 +25,7 @@ exports.usersResolver = {
     Mutation: {
         createUser(_, { input }) {
             return __awaiter(this, void 0, void 0, function* () {
-                return yield (0, user_service_1.createUser)({ email: input.email, username: input.username });
+                return yield (0, user_service_1.createUser)({ spotifyRefreshToken: input.spotifyRefreshToken, spotifyUsername: input.spotifyUsername });
             });
         },
         updateUser() {

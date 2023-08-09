@@ -1,6 +1,7 @@
 import { useQuery } from "@apollo/client";
 import { GET_USERS } from "./graphQL/queries";
 import { useEffect } from "react";
+import axios from "axios";
 
 function App() {
   const { error, loading, data } = useQuery(GET_USERS);
@@ -17,6 +18,32 @@ function App() {
       <a href={import.meta.env.VITE_BACKEND_URL + "/spotifyauth"}>
         <button>Sign In With Spotify</button>
       </a>
+      <button
+        onClick={async () => {
+          console.log(
+            await axios(import.meta.env.VITE_BACKEND_URL + "/spotifyauth/me", {
+              method: "get",
+              withCredentials: true
+            })
+          );
+        }}
+      >
+        Who Am I
+      </button>
+      <button
+        onClick={async () => {
+          console.log(
+            await axios(
+              import.meta.env.VITE_BACKEND_URL + "/spotifyauth/logout", {
+                method: "get",
+                withCredentials: true
+              }
+            )
+          );
+        }}
+      >
+        Log Out
+      </button>
     </>
   );
 }

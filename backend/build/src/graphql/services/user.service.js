@@ -15,9 +15,9 @@ const extractSelections_1 = require("../utils/extractSelections");
 const prisma = new client_1.PrismaClient();
 const getUsers = ({ info }) => __awaiter(void 0, void 0, void 0, function* () {
     const extractedSelections = (0, extractSelections_1.extractSelection)(info);
-    const playlistsIncluded = extractedSelections.includes("posts");
+    const playlistsIncluded = extractedSelections.includes("playlists");
     if (playlistsIncluded) {
-        return yield prisma.user.findMany({ include: { Playlist: true } });
+        return yield prisma.user.findMany({ include: { playlists: true } });
     }
     return yield prisma.user.findMany();
 });
@@ -30,10 +30,11 @@ exports.getUsers = getUsers;
 //   }
 //   return await prisma.user.findUnique({where: {id}});
 // };
-const createUser = ({ username = "Guest" }) => __awaiter(void 0, void 0, void 0, function* () {
+const createUser = ({ spotifyRefreshToken = "guest", spotifyUsername = "guest", }) => __awaiter(void 0, void 0, void 0, function* () {
     const createdUser = yield prisma.user.create({
         data: {
-            username,
+            spotifyRefreshToken,
+            spotifyUsername,
         },
     });
     return createdUser;

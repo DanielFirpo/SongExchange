@@ -94,30 +94,38 @@ router.get(
       if (existingUser) {
         //update refresh token in DB in case their previous refresh token is no longer valid (maybe they removed the app from spotify)
         await updateRefreshToken(spotifyId, spotifyRefreshToken);
-        res.redirect(process.env.FRONTEND_URL + "discover"); //redirect to home screen since they're logged in now
+        res.redirect(process.env.FRONTEND_URL + "/discover"); //redirect to home screen since they're logged in now
       } else {
         //new user sign up! add them to the db
         await createUser(spotifyId, spotifyRefreshToken);
-        res.redirect(process.env.FRONTEND_URL + "welcome"); //redirect to welcome screen cause it's their first time on site
+        res.redirect(process.env.FRONTEND_URL + "/welcome"); //redirect to welcome screen cause it's their first time on site
       }
     } catch (error) {
-      console.error(error)
-      return res.redirect(process.env.FRONTEND_URL + "spotifyerror");
+      console.error(error);
+      return res.redirect(process.env.FRONTEND_URL + "/spotifyerror");
     }
   }
 );
 
 //lets the user know who they are, if their session is valid, and when their session will expire
 router.get("/me", function (req: Request, res: Response, next: Function) {
-  if (!req.cookies && !req.cookies.token) {
-    console.log("your token is", req.cookies.token);
+  if (res.locals.user) {
+    res.status(200).json(res.locals.user);
   } else {
-    console.log("you're not logged in!");
+    res.status(401).json({ error: "Not logged in." });
   }
 });
 
+//lets the user know who they are, if their session is valid, and when their session will expire
+router.get("/logout", function (req: Request, res: Response, next: Function) {
+  res.clearCookie("token");
+  res.status(200).send("Logout success");
+});
+
 function generateJWT(spotifyId: string): string {
-  return jwt.sign({spotifyId: spotifyId}, process.env.JWT_SECRET, { expiresIn: "1800s" });
+  return jwt.sign({ spotifyId: spotifyId }, process.env.JWT_SECRET, {
+    expiresIn: "1800s",
+  });
 }
 
 export default router;
