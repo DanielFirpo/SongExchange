@@ -1,10 +1,5 @@
 function UserPage() {
-    return (
-      <>
-      
-      </>
-    );
-  }
-  
-  export default UserPage;
-  
+  return <></>;
+}
+
+export default UserPage;

@@ -1,3 +1,3 @@
 import WelcomePage from './WelcomePage';
 
-export { WelcomePage };
+export default WelcomePage;

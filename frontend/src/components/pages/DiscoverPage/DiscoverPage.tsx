@@ -1,7 +1,7 @@
 function DiscoverPage() {
     return (
       <>
-      
+      discover
       </>
     );
   }

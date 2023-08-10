@@ -1,3 +1,3 @@
-import PlaylistPage from './PlaylistPage';
+import PlaylistPage from './PlaylistPage.tsx';
 
-export { PlaylistPage };
+export default PlaylistPage;

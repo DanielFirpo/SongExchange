@@ -1,3 +1,3 @@
 import PlaylistSummary from './PlaylistSummary';
 
-export { PlaylistSummary };
+export default PlaylistSummary;

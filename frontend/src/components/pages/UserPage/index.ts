@@ -1,3 +1,3 @@
 import UserPage from './UserPage';
 
-export { UserPage };
+export default UserPage;
