@@ -1,3 +1,3 @@
-import UserPage from './UserPage';
+import Footer from './Footer';
 
-export { UserPage };
+export { Footer };

@@ -1,4 +1,4 @@
-function UserPage() {
+function Footer() {
     return (
       <>
       
@@ -6,5 +6,5 @@ function UserPage() {
     );
   }
   
-  export default UserPage;
+  export default Footer;
   
