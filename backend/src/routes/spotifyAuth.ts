@@ -6,6 +6,7 @@ import {
   createUser,
   updateRefreshToken,
 } from "../prisma/utils/userUtils";
+import { createPlaylist } from "../prisma/utils/playlistUtils";
 const jwt = require("jsonwebtoken");
 
 const express = require("express");
@@ -16,7 +17,7 @@ router.get("/", function (req: Request, res: Response, next: Function) {
   const state =
     Math.floor(Math.random() * Date.now()).toString(36) +
     Math.floor(Math.random() * Date.now()).toString(36); //random string 16 chars long
-  const scope = "user-read-private user-read-email";
+  const scope = "user-read-private user-read-email user-library-read";
 
   res.redirect(
     "https://accounts.spotify.com/authorize?" +
@@ -65,16 +66,16 @@ router.get(
         responseType: "json",
       });
 
-      console.log("got tokens", tokenResponse.data);
+      const accessToken = tokenResponse.data.access_token;
+      const spotifyRefreshToken = tokenResponse.data.refresh_token;
 
       const userInfoResponse = await axios({
         url: "https://api.spotify.com/v1/me",
         method: "get",
-        headers: { Authorization: "Bearer " + tokenResponse.data.access_token },
+        headers: { Authorization: "Bearer " + accessToken },
       });
 
       const spotifyId = userInfoResponse.data.id;
-      const spotifyRefreshToken = tokenResponse.data.refresh_token;
 
       console.log("USER INFO", userInfoResponse.data);
 
@@ -97,8 +98,31 @@ router.get(
         res.redirect(process.env.FRONTEND_URL + "/discover"); //redirect to home screen since they're logged in now
       } else {
         //new user sign up! add them to the db
-        await createUser(spotifyId, spotifyRefreshToken);
+        const newUser = await createUser(spotifyId, spotifyRefreshToken);
+        
+        if (newUser) {
+          //get their liked songs and add them to the db
+          getLikedSongs(accessToken, (result: any[]) => {
+            createPlaylist(
+              newUser.id,
+              undefined,
+              "Liked Songs",
+              result.map((song) => {
+                const songArtist: string = song.track.artists[0].name;
+                const songName: string = song.track.name;
+                const songId: string = song.track.id;
+                return {
+                  name: songName,
+                  artist: songArtist,
+                  spotifyId: songId,
+                };
+              })
+            );
+          });
+        }
+
         res.redirect(process.env.FRONTEND_URL + "/welcome"); //redirect to welcome screen cause it's their first time on site
+
       }
     } catch (error) {
       console.error(error);
@@ -120,12 +144,35 @@ router.get("/me", function (req: Request, res: Response, next: Function) {
 router.get("/logout", function (req: Request, res: Response, next: Function) {
   res.clearCookie("token");
   res.status(200).send("Logout success");
+  //TODO: figure out JWT revokation?
 });
 
 function generateJWT(spotifyId: string): string {
   return jwt.sign({ spotifyId: spotifyId }, process.env.JWT_SECRET, {
     expiresIn: "1800s",
   });
+}
+
+async function getLikedSongs(token: string, callback: Function) {
+  let nextPage = `https://api.spotify.com/v1/me/tracks?offset=0&limit=50`;
+  let songs: any[] = [];
+
+  try {
+    while (nextPage) {
+      const likedSongsResponse = await axios({
+        url: nextPage,
+        method: "get",
+        headers: { Authorization: "Bearer " + token },
+      });
+      console.log("got page");
+      nextPage = likedSongsResponse.data.next;
+      songs = songs.concat(likedSongsResponse.data.items);
+    }
+  } catch (err) {
+    console.error("error gettin liked songs!", err);
+  }
+
+  callback(songs);
 }
 
 export default router;

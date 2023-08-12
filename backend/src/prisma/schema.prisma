@@ -20,7 +20,8 @@ model Playlist {
   id        String             @id @default(uuid())
   userId    String
   ownedBy   User               @relation(fields: [userId], references: [id])
-  spotifyId String
+  spotifyId String? //when null, it means it's the user's liked songs instead of a public playlist
+  name      String
   songs     SongsInPlaylists[]
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
@@ -30,7 +31,7 @@ model Song {
   id        String             @id @default(uuid())
   name      String
   artist    String
-  spotifyId String
+  spotifyId String             @unique
   playlists SongsInPlaylists[]
 }
 

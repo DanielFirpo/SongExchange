@@ -22,8 +22,8 @@ import AccountPage from "./components/pages/AccountPage/AccountPage.tsx";
 
 const errorLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors) {
-    graphQLErrors.forEach((message: GraphQLError) => {
-      alert("graphql error " + message);
+    graphQLErrors.forEach((error: GraphQLError) => {
+      console.log("graphql error " + JSON.stringify(error));
     });
   }
 });

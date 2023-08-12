@@ -1,6 +1,5 @@
-import { PrismaClient, User } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { User } from "@prisma/client";
+import prisma from "../prismaConnection";
 
 export async function getUserBySpotifyID(
   spotifyUsername: string
@@ -34,9 +33,8 @@ export async function createUser(
     return newUser;
   } catch (error) {
     console.error("Error creating user:", error);
-  } finally {
-    return undefined;
   }
+  return undefined;
 }
 
 export async function updateRefreshToken(

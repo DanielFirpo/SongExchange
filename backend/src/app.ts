@@ -10,6 +10,7 @@ import spotifyAuthRouter from "./routes/spotifyAuth";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { decodeToken, disallowTrace } from "./middleware";
+import prisma from "./prisma/prismaConnection";
 
 dotenv.config();
 const app = express();
@@ -57,5 +58,10 @@ const bootstrapServer = async () => {
     console.log(`🚀 Graphql ready at http://localhost:${port}/graphql`);
   });
 };
+
+process.on('exit', async () => {
+  console.log('Server is exiting. Disconnecting Prisma...');
+  await prisma.$disconnect();
+});
 
 bootstrapServer();
