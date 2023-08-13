@@ -1,6 +1,8 @@
 import { User } from "@prisma/client";
 import prisma from "../prismaConnection";
 
+//util file for interactions with the database involving users
+
 export async function getUserBySpotifyID(
   spotifyUsername: string
 ): Promise<User | null | undefined> {

@@ -5,9 +5,10 @@ import {
   getUserBySpotifyID,
   createUser,
   updateRefreshToken,
-} from "../prisma/utils/userUtils";
-import { createPlaylist } from "../prisma/utils/playlistUtils";
+} from "../prisma/prismaUtils/userUtils";
+import { createPlaylist } from "../prisma/prismaUtils/playlistUtils";
 const jwt = require("jsonwebtoken");
+import { getSpotifyLikedSongs, getNewSpotifyAccessToken } from "../utils";
 
 const express = require("express");
 const router = express.Router();
@@ -45,26 +46,8 @@ router.get(
     const code = req.query.code;
 
     try {
-      const tokenResponse = await axios({
-        url: "https://accounts.spotify.com/api/token",
-        method: "post",
-        data: {
-          code: code,
-          redirect_uri: process.env.SPOTIFY_REDIRECT,
-          grant_type: "authorization_code",
-        },
-        headers: {
-          Authorization:
-            "Basic " +
-            Buffer.from(
-              process.env.SPOTIFY_CLIENT_ID +
-                ":" +
-                process.env.SPOTIFY_CLIENT_SECRET
-            ).toString("base64"),
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        responseType: "json",
-      });
+      
+      const tokenResponse = await getNewSpotifyAccessToken(code);
 
       const accessToken = tokenResponse.data.access_token;
       const spotifyRefreshToken = tokenResponse.data.refresh_token;
@@ -99,10 +82,10 @@ router.get(
       } else {
         //new user sign up! add them to the db
         const newUser = await createUser(spotifyId, spotifyRefreshToken);
-        
+
         if (newUser) {
           //get their liked songs and add them to the db
-          getLikedSongs(accessToken, (result: any[]) => {
+          getSpotifyLikedSongs(accessToken, (result: any[]) => {
             createPlaylist(
               newUser.id,
               undefined,
@@ -151,28 +134,6 @@ function generateJWT(spotifyId: string): string {
   return jwt.sign({ spotifyId: spotifyId }, process.env.JWT_SECRET, {
     expiresIn: "1800s",
   });
-}
-
-async function getLikedSongs(token: string, callback: Function) {
-  let nextPage = `https://api.spotify.com/v1/me/tracks?offset=0&limit=50`;
-  let songs: any[] = [];
-
-  try {
-    while (nextPage) {
-      const likedSongsResponse = await axios({
-        url: nextPage,
-        method: "get",
-        headers: { Authorization: "Bearer " + token },
-      });
-      console.log("got page");
-      nextPage = likedSongsResponse.data.next;
-      songs = songs.concat(likedSongsResponse.data.items);
-    }
-  } catch (err) {
-    console.error("error gettin liked songs!", err);
-  }
-
-  callback(songs);
 }
 
 export default router;

@@ -1,18 +1,7 @@
-import { useQuery } from "@apollo/client";
-import { GET_USERS } from "./graphQL/queries";
-import { useEffect } from "react";
 import axios from "axios";
 import { Outlet } from "react-router-dom";
 
 function App() {
-  const { error, loading, data } = useQuery(GET_USERS);
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
-
-  if (error) return <>error</>;
-  if (loading) return <>loading...</>;
 
   return (
     <>

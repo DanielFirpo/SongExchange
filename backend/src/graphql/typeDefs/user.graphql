@@ -22,6 +22,7 @@ type Playlist {
   songs: [Song!]!
   createdAt: String!
   updatedAt: String!
+  name: String!
 }
 
 type Song {
@@ -34,7 +35,7 @@ type Song {
 
 type Query {
   user(id: String!): User
-  users: [User]
+  userPlaylists: [Playlist]
 }
 
 type Mutation {

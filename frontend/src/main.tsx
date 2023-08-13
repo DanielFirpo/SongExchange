@@ -30,8 +30,10 @@ const errorLink = onError(({ graphQLErrors }) => {
 
 const link = from([
   errorLink,
-  new HttpLink({ uri: import.meta.env.VITE_GRAPHQL_URL }),
+  new HttpLink({ uri: import.meta.env.VITE_GRAPHQL_URL,
+    credentials: 'include' }),
 ]);
+
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),

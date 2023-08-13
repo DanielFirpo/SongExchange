@@ -11,6 +11,7 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { decodeToken, disallowTrace } from "./middleware";
 import prisma from "./prisma/prismaConnection";
+import { Request, Response } from "express";
 
 dotenv.config();
 const app = express();
@@ -32,20 +33,33 @@ const bootstrapServer = async () => {
   // parse application/json
   app.use(bodyParser.json());
 
-  app.use(cors());
-  app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL + "");
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('Access-Control-Allow-Credentials', 'true'); // Allow credentials
+  function corsSettings(req: Request, res: Response, next: Function) {
+    console.log("CORS middleware executed");
+    res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL + "");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
     next();
-  });
+  }
+
+  app.use(cors());
+  app.use(corsSettings);
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(disallowTrace);
   app.use(cookieParser());
   app.use(decodeToken);
-  app.use("/graphql", expressMiddleware(server));
+  console.log(process.env.FRONTEND_URL + "");
+
+  app.use(
+    "/graphql",
+    cors(),
+    corsSettings,
+    expressMiddleware(server, {
+      context: async ({ req, res }) => ({
+        user: res.locals.user,
+      }),
+    })
 
   app.use("/spotifyauth", spotifyAuthRouter);
 
@@ -59,8 +73,8 @@ const bootstrapServer = async () => {
   });
 };
 
-process.on('exit', async () => {
-  console.log('Server is exiting. Disconnecting Prisma...');
+process.on("exit", async () => {
+  console.log("Server is exiting. Disconnecting Prisma...");
   await prisma.$disconnect();
 });
 
