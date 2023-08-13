@@ -60,6 +60,7 @@ const bootstrapServer = async () => {
         user: res.locals.user,
       }),
     })
+  );
 
   app.use("/spotifyauth", spotifyAuthRouter);
 
