@@ -19,7 +19,11 @@ import DiscoverPage from "./components/pages/DiscoverPage/DiscoverPage.tsx";
 import PlaylistPage from "./components/pages/PlaylistPage/PlaylistPage.tsx";
 import UserPage from "./components/pages/UserPage/UserPage.tsx";
 import AccountPage from "./components/pages/AccountPage/AccountPage.tsx";
+import { Provider } from "react-redux";
+import { store } from "./store.ts";
+import { createApi } from '@reduxjs/toolkit/query/react'
 
+//Apollo GQL setup
 const errorLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach((error: GraphQLError) => {
@@ -30,21 +34,26 @@ const errorLink = onError(({ graphQLErrors }) => {
 
 const link = from([
   errorLink,
-  new HttpLink({ uri: import.meta.env.VITE_GRAPHQL_URL,
-    credentials: 'include' }),
+  new HttpLink({
+    uri: import.meta.env.VITE_GRAPHQL_URL,
+    credentials: "include",
+  }),
 ]);
-
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
   link: link,
 });
 
+//RTK query setup
+
+
+//react router setup
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App/>,
-    errorElement: <ErrorPage/>,
+    element: <App />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: "welcome",
@@ -72,8 +81,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ApolloProvider client={client}>
-      <RouterProvider router={router} />
-    </ApolloProvider>
+    <Provider store={store}>
+      <ApolloProvider client={client}>
+        <RouterProvider router={router} />
+      </ApolloProvider>
+    </Provider>
   </React.StrictMode>
 );

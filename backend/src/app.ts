@@ -42,7 +42,7 @@ const bootstrapServer = async () => {
     next();
   }
 
-  app.use(cors());
+  // app.use(cors());
   app.use(corsSettings);
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -53,8 +53,12 @@ const bootstrapServer = async () => {
 
   app.use(
     "/graphql",
-    cors(),
-    corsSettings,
+    // cors(),
+    // corsSettings,
+    cors<cors.CorsRequest>({
+      origin: process.env.FRONTEND_URL + "",
+      credentials: true,
+    }),
     expressMiddleware(server, {
       context: async ({ req, res }) => ({
         user: res.locals.user,
