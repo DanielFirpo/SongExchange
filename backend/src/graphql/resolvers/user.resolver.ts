@@ -1,6 +1,9 @@
 import { GraphQLResolveInfo } from "graphql";
-import { getUserPlaylists } from "../../prisma/prismaUtils/playlistUtils";
-
+import {
+  createPlaylist,
+  getUserPlaylists,
+} from "../../prisma/prismaUtils/playlistUtils";
+import { Playlist, Song } from "@prisma/client";
 
 export const usersResolver = {
   Query: {
@@ -10,13 +13,18 @@ export const usersResolver = {
     // async user(_: any, args: Record<string, any>, context: any, info: GraphQLResolveInfo) {
     //   return await getUser({id: args.id, info});
     // },
-    async userPlaylists(_: any, args: Record<string, any>, context: any, info: GraphQLResolveInfo) {
+    async userPlaylists(
+      _: any,
+      args: Record<string, any>,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
       console.log("getting user playlists");
       if (!context.user) {
         console.log("unauthorized!", context);
         return {
-          error: "You are not authorized to view this data."
-       };
+          error: "You are not authorized to view this data.",
+        };
       }
       const playlists = await getUserPlaylists(context.user);
       return playlists;
@@ -26,7 +34,24 @@ export const usersResolver = {
     // async createUser(_: any, {input}: Record<string, any>) {
     //   return await createUser({spotifyRefreshToken: input.spotifyRefreshToken, spotifyUsername: input.spotifyUsername});
     // },
-    async updateUser() { },
-    async deleteUser() { },
+    async addPlaylist(
+      parent: any,
+      args: {
+        userId: string;
+        playlistId: string;
+        name: string;
+        songs: Omit<Song, "id">[];
+      },
+      context: any
+    ): Promise<Playlist | null> {
+      return createPlaylist(
+        args.userId,
+        args.playlistId,
+        args.name,
+        args.songs
+      );
+    },
+    async updateUser() {},
+    async deleteUser() {},
   },
 };

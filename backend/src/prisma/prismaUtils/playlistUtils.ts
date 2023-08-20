@@ -1,29 +1,57 @@
 import { Playlist, Song } from "@prisma/client";
 import prisma from "../prismaConnection";
+import { getUserBySpotifyID } from "./userUtils";
 
 //util file for interactions with the database involving playlists
 
-//TODO: Test if this explodes when a playlist is added
-//that contains a song that is already in the DB
 export async function createPlaylist(
   userId: string,
   playlistId: string | undefined,
   name: string,
   songs: Omit<Song, "id">[]
-): Promise<Playlist | null | undefined> {
+): Promise<Playlist | null> {
   try {
+
+    const user = await getUserBySpotifyID(userId);
+
+    console.log("user", user)
+
+    const existingSongs = await prisma.song.findMany({
+      where: {
+        spotifyId: { in: songs.map((song) => song.spotifyId) },
+      },
+    })
+
+    console.log("songs before unique check", songs)
+    const existingPlaylist = await prisma.song.findMany({
+      where: {
+        spotifyId: playlistId,
+      },
+    })
+
+    if (existingPlaylist.length > 0) return null;
+
+    //filter out songs already in the db
+    songs = songs.filter((song) => {
+      return !existingSongs.find((existingSong) => {
+        return song.spotifyId == existingSong.spotifyId;
+      })
+    })
+
+    console.log("songs after unique check", songs)
+
     const newPlaylist = await prisma.playlist.create({
       data: {
-        userId: userId,
+        userId: user?.id || "",
         spotifyId: playlistId,
         name: name,
         songs: {
           create: songs.map((song) => ({
             song: {
-              create: {
-                ...song,
+                create: {
+                  ...song
+                },
               },
-            },
           })),
         },
       },

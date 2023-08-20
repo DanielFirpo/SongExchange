@@ -1,4 +1,5 @@
 import { PayloadAction, configureStore, createSlice } from "@reduxjs/toolkit";
+import { api } from "./api"
 
 interface StateValue { 
     isLoggedIn: boolean
@@ -23,6 +24,8 @@ const slice = createSlice({
 export const store = configureStore({
     //reducer takes previous state + and action and creates a new state
     reducer: {
-        app: slice.reducer
-    }
+        app: slice.reducer,
+        [api.reducerPath]: api.reducer,
+    },
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
 })

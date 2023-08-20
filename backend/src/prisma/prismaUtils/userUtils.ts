@@ -6,6 +6,7 @@ import prisma from "../prismaConnection";
 export async function getUserBySpotifyID(
   spotifyUsername: string
 ): Promise<User | null | undefined> {
+  console.log("WORK MOOMOOMO")
   try {
     const user: User | null = await prisma.user.findUnique({
       where: {

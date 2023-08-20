@@ -21,7 +21,6 @@ import UserPage from "./components/pages/UserPage/UserPage.tsx";
 import AccountPage from "./components/pages/AccountPage/AccountPage.tsx";
 import { Provider } from "react-redux";
 import { store } from "./store.ts";
-import { createApi } from '@reduxjs/toolkit/query/react'
 
 //Apollo GQL setup
 const errorLink = onError(({ graphQLErrors }) => {

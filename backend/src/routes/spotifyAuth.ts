@@ -8,7 +8,7 @@ import {
 } from "../prisma/prismaUtils/userUtils";
 import { createPlaylist } from "../prisma/prismaUtils/playlistUtils";
 const jwt = require("jsonwebtoken");
-import { getSpotifyLikedSongs, getNewSpotifyAccessToken } from "../utils";
+import { getSpotifyLikedSongs } from "../utils";
 
 const express = require("express");
 const router = express.Router();
@@ -46,8 +46,28 @@ router.get(
     const code = req.query.code;
 
     try {
-      
-      const tokenResponse = await getNewSpotifyAccessToken(code);
+      const tokenResponse = await axios({
+        url: "https://accounts.spotify.com/api/token",
+        method: "post",
+        data: {
+          code: code,
+          redirect_uri: process.env.SPOTIFY_REDIRECT,
+          grant_type: "authorization_code",
+        },
+        headers: {
+          Authorization:
+            "Basic " +
+            Buffer.from(
+              process.env.SPOTIFY_CLIENT_ID +
+              ":" +
+              process.env.SPOTIFY_CLIENT_SECRET
+            ).toString("base64"),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        responseType: "json",
+      });
+
+      console.log("token", tokenResponse);
 
       const accessToken = tokenResponse.data.access_token;
       const spotifyRefreshToken = tokenResponse.data.refresh_token;
@@ -85,7 +105,7 @@ router.get(
 
         if (newUser) {
           //get their liked songs and add them to the db
-          getSpotifyLikedSongs(accessToken, (result: any[]) => {
+          getSpotifyLikedSongs(spotifyId, (result: any[]) => {
             createPlaylist(
               newUser.id,
               undefined,

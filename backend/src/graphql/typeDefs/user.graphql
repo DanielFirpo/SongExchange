@@ -38,8 +38,20 @@ type Query {
   userPlaylists: [Playlist]
 }
 
+input SongInput {
+  title: String!
+  artist: String!
+  duration: Int!
+}
+
 type Mutation {
   createUser(input: UserInput!): User
   updateUser(input: UserInput!): User
   deleteUser(id: String!): User
+  addPlaylist(
+    userId: String!
+    playlistId: String!
+    name: String!
+    songs: [SongInput!]!
+  ): Playlist
 }

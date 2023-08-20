@@ -7,6 +7,7 @@ import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { typeDefs, resolvers } from "./graphql";
 import spotifyAuthRouter from "./routes/spotifyAuth";
+import router from "./routes/generalRoutes";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { decodeToken, disallowTrace } from "./middleware";
@@ -34,7 +35,7 @@ const bootstrapServer = async () => {
   app.use(bodyParser.json());
 
   function corsSettings(req: Request, res: Response, next: Function) {
-    console.log("CORS middleware executed");
+    // console.log("CORS middleware executed");
     res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL + "");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -67,6 +68,7 @@ const bootstrapServer = async () => {
   );
 
   app.use("/spotifyauth", spotifyAuthRouter);
+  app.use(router);
 
   app.get("/", (req, res) => {
     res.send("Hello World!");
