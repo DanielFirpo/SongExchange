@@ -9,6 +9,7 @@ import {
 import { createPlaylist } from "../prisma/prismaUtils/playlistUtils";
 const jwt = require("jsonwebtoken");
 import { getSpotifyLikedSongs } from "../utils";
+import { loggedInOnly } from "../middleware";
 
 const express = require("express");
 const router = express.Router();
@@ -18,7 +19,7 @@ router.get("/", function (req: Request, res: Response, next: Function) {
   const state =
     Math.floor(Math.random() * Date.now()).toString(36) +
     Math.floor(Math.random() * Date.now()).toString(36); //random string 16 chars long
-  const scope = "user-read-private user-read-email user-library-read";
+  const scope = "user-read-private user-read-email user-library-read playlist-modify-public playlist-modify-private";
 
   res.redirect(
     "https://accounts.spotify.com/authorize?" +
@@ -104,10 +105,11 @@ router.get(
         const newUser = await createUser(spotifyId, spotifyRefreshToken);
 
         if (newUser) {
+          console.log("new user", newUser)
           //get their liked songs and add them to the db
-          getSpotifyLikedSongs(spotifyId, (result: any[]) => {
-            createPlaylist(
-              newUser.id,
+          await getSpotifyLikedSongs(spotifyId, async (result: any[]) => {
+            await createPlaylist(
+              spotifyId,
               undefined,
               "Liked Songs",
               result.map((song) => {
@@ -135,15 +137,10 @@ router.get(
 );
 
 //lets the user know who they are, if their session is valid, and when their session will expire
-router.get("/me", function (req: Request, res: Response, next: Function) {
-  if (res.locals.user) {
+router.get("/me", loggedInOnly, function (req: Request, res: Response, next: Function) {
     res.status(200).json(res.locals.user);
-  } else {
-    res.status(401).json({ error: "Not logged in." });
-  }
 });
 
-//lets the user know who they are, if their session is valid, and when their session will expire
 router.get("/logout", function (req: Request, res: Response, next: Function) {
   res.clearCookie("token");
   res.status(200).send("Logout success");

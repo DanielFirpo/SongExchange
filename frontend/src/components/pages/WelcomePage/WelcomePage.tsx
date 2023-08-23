@@ -1,7 +1,7 @@
-import PageContainer from "../../general/PageContainer";
+// import PageContainer from "../../general/PageContainer";
 // import { GET_USER_PLAYLISTS } from "../../../graphQL/queries";
 // import { useQuery } from "@apollo/client";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import {
   useGetUserPlaylistsQuery,
@@ -26,7 +26,7 @@ function WelcomePage() {
   if (isLoading) return <>loading...</>;
 
   return (
-    <PageContainer>
+    <>
       <h1>Welcome {"username here"}!</h1>
       <h2>Which playlists best represent your taste in music?</h2>
       <h3>We'll recommend songs based on your selections</h3>
@@ -56,13 +56,13 @@ function WelcomePage() {
       <button
         onClick={async () => {
           const result = await setPlaylists(selectedPlaylists.current);
-          console.log(result)
-          navigate('/discover');
+          console.log(result);
+          navigate("/discover");
         }}
       >
         Continue
       </button>
-    </PageContainer>
+    </>
   );
 }
 

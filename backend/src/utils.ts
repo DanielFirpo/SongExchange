@@ -1,11 +1,9 @@
 import axios from "axios";
 import { getUserBySpotifyID } from "./prisma/prismaUtils/userUtils";
 
-
 //general utilities file
 
 export async function getSpotifyLikedSongs(spotifyId: string, callback: Function) {
-
   const accessToken = await getNewSpotifyAccessToken(spotifyId);
   let nextPage = `https://api.spotify.com/v1/me/tracks?offset=0&limit=50`;
   let songs: any[] = [];
@@ -29,13 +27,12 @@ export async function getSpotifyLikedSongs(spotifyId: string, callback: Function
 
 // doesn't include liked songs
 export async function getSpotifyPlaylists(spotifyId: string) {
-
   const accessToken = await getNewSpotifyAccessToken(spotifyId);
 
   let nextPage = `https://api.spotify.com/v1/users/${spotifyId}/playlists?limit=50`;
   let playlists: any[] = [];
 
-  console.log("access", accessToken, "id", spotifyId)
+  console.log("access", accessToken, "id", spotifyId);
 
   try {
     while (nextPage) {
@@ -55,7 +52,6 @@ export async function getSpotifyPlaylists(spotifyId: string) {
 }
 
 export async function getSongsInSpotifyPlaylist(spotifyId: string, playlistId: string): Promise<any[]> {
-
   const accessToken = await getNewSpotifyAccessToken(spotifyId);
 
   let nextPage = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50`;
@@ -79,8 +75,10 @@ export async function getSongsInSpotifyPlaylist(spotifyId: string, playlistId: s
   return [];
 }
 
+//TODO: add access token, token expiration and isLoggedIn fields to DB.
+//Only get new token if expired, otherwise just return one from DB.
+// If isLoggedOut, do not grant new tokens.
 export async function getNewSpotifyAccessToken(spotifyId: string) {
-
   const user = await getUserBySpotifyID(spotifyId);
 
   const tokenResponse = await axios({
@@ -93,25 +91,67 @@ export async function getNewSpotifyAccessToken(spotifyId: string) {
     headers: {
       Authorization:
         "Basic " +
-        Buffer.from(
-          process.env.SPOTIFY_CLIENT_ID +
-          ":" +
-          process.env.SPOTIFY_CLIENT_SECRET
-        ).toString("base64"),
+        Buffer.from(process.env.SPOTIFY_CLIENT_ID + ":" + process.env.SPOTIFY_CLIENT_SECRET).toString("base64"),
       "Content-Type": "application/x-www-form-urlencoded",
     },
     responseType: "json",
   });
 
   return tokenResponse.data.access_token;
-  
 }
 
-export async function getNewSpotifyAccessTokenBySpotifyId(spotifyId: string) {
-  const user = await getUserBySpotifyID(spotifyId);
+// export async function getNewSpotifyAccessTokenBySpotifyId(spotifyId: string) {
+//   const user = await getUserBySpotifyID(spotifyId);
 
-  console.log("user result", user?.spotifyRefreshToken);
+//   console.log("user result", user?.spotifyRefreshToken);
 
-  if (user) return (await getNewSpotifyAccessToken(user.spotifyRefreshToken)).data.access_token
-  else return "error";
+//   if (user)
+//     return (await getNewSpotifyAccessToken(user.spotifyRefreshToken)).data
+//       .access_token;
+//   else return "error";
+// }
+
+export async function createSpotifyPlaylist(
+  songs: string[],
+  spotifyId: string,
+  name: string = "Song Exchange Export",
+  description?: string
+) {
+  const accessToken = await getNewSpotifyAccessToken(spotifyId);
+
+  try {
+    const playlistsResponse = await axios({
+      url: `https://api.spotify.com/v1/users/${spotifyId}/playlists`,
+      method: "post",
+      headers: { Authorization: "Bearer " + accessToken },
+      data: {
+        name: name,
+        description: description,
+        public: true,
+      },
+    });
+
+    //format as URIs
+    songs = songs.map((songId) => {
+      return "spotify:track:" + songId;
+    });
+
+    //can only send 100 songs at a time
+    for (let i = 0; i < songs.length; i += 100) {
+      await axios({
+        url: `https://api.spotify.com/v1/playlists/${playlistsResponse.data.id}/tracks`,
+        method: "post",
+        headers: { Authorization: "Bearer " + accessToken },
+        data: {
+          position: 0,
+          uris: songs.slice(i, i + 100),
+        },
+      });
+    }
+
+    return playlistsResponse;
+  } catch (err) {
+    console.error("error setting playlist!", err);
+    return undefined;
+  }
 }

@@ -25,10 +25,19 @@ export function decodeToken(req: Request, res: Response, next: Function) {
   const token = req.cookies?.token;
   if (token) {
     try {
-        res.locals.user = jwt.verify(token, process.env.JWT_SECRET);
+      res.locals.user = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
       console.log("Issue decoding token, client sent fake token?", err);
     }
   }
   next();
+}
+
+export function loggedInOnly(req: Request, res: Response, next: Function) {
+  const user = res.locals.user;
+  if (user) {
+    next();
+  } else {
+    res.status(401).json({ error: "Not authorized" });
+  }
 }
