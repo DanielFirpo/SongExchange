@@ -2,7 +2,7 @@
 // import { GET_USER_PLAYLISTS } from "../../../graphQL/queries";
 // import { useQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   useGetUserPlaylistsQuery,
   useSetPlaylistsMutation,

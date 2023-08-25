@@ -29,22 +29,17 @@ export async function createPlaylist(
       },
     });
 
+    //do not add playlist if it already exists in DB
     if (existingPlaylist.length > 0) return null;
 
     //filter out songs already in the db
-    songs = songs.filter((song) => {
+    const uniqueSongs = songs.filter((song) => {
       return !existingSongs.find((existingSong) => {
         return song.spotifyId == existingSong.spotifyId;
       });
     });
 
-    console.log(
-      "songs after unique check",
-      songs.length,
-      playlistId,
-      name,
-      user?.id
-    );
+    console.log("songs after unique check", uniqueSongs.length);
 
     const newPlaylist = await prisma.playlist.create({
       data: {
@@ -52,7 +47,7 @@ export async function createPlaylist(
         spotifyId: playlistId,
         name: name,
         songs: {
-          create: songs.map((song) => ({
+          create: uniqueSongs.map((song) => ({
             song: {
               create: {
                 ...song,
@@ -63,6 +58,17 @@ export async function createPlaylist(
       },
       include: {
         songs: true,
+      },
+    });
+
+    console.log("newPlaylist.id", newPlaylist.id, "existingSongs", existingSongs.map((song) => {return { id: song.id }}));
+    //Connect songs already existing in the DB to this playlist aswell
+    await prisma.playlist.update({
+      where: { id: newPlaylist.id },
+      data: {
+        songs: {
+          connect: existingSongs.map((song) => {return { id: song.id }}),
+        },
       },
     });
 
@@ -116,9 +122,7 @@ interface RecommendationPlaylist {
   }[];
 }
 
-export async function getUsersWithMostSongsInCommon(
-  spotifyUsername: string
-): Promise<Recommendations | null> {
+export async function getUsersWithMostSongsInCommon(spotifyUsername: string): Promise<Recommendations | null> {
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -142,9 +146,8 @@ export async function getUsersWithMostSongsInCommon(
     });
 
     const songSpotifyIds =
-      user?.playlists.flatMap((playlist) =>
-        playlist.songs.map((songInPlaylist) => songInPlaylist.song.spotifyId)
-      ) || [];
+      user?.playlists.flatMap((playlist) => playlist.songs.map((songInPlaylist) => songInPlaylist.song.spotifyId)) ||
+      [];
 
     const usersWithMatchingPlaylists = await prisma.user.findMany({
       where: {
@@ -228,8 +231,7 @@ export async function getUsersWithMostSongsInCommon(
         0
       );
 
-      userRecommendation.commonality =
-        (commonCount / (commonCount + uncommonCount)) * 100;
+      userRecommendation.commonality = (commonCount / (commonCount + uncommonCount)) * 100;
       userRecommendation.totalSongsInCommon = commonCount;
       userRecommendation.totalSongsNotInCommon = uncommonCount;
 

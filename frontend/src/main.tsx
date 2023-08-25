@@ -55,6 +55,10 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
+        path: "", // Empty path for the base domain
+        element: <h1 className="w-full text-center mt-36">Static landing page coming soon...</h1>, // Render this component for the base domain
+      },
+      {
         path: "welcome",
         element: <WelcomePage />,
       },

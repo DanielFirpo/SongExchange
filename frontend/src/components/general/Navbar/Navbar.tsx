@@ -2,7 +2,7 @@ import axios from "axios";
 import logo from "../../../assets/blacklogo.png";
 import hamburgerIcon from "../../../assets/hamburger.svg";
 import closeHamburgerIcon from "../../../assets/close.svg";
-import accountIcon from "../../../assets/account.svg";
+// import accountIcon from "../../../assets/account.svg";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,7 +10,7 @@ import { State, setIsLoggedIn } from "../../../store";
 
 function Navbar() {
   // In your component
-  const isLoggedIn = useSelector((state: State) => state.app.value.isLoggedIn );
+  const isLoggedIn = useSelector((state: State) => state.app.value.isLoggedIn);
 
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
 
@@ -90,17 +90,36 @@ function Navbar() {
     );
   };
 
+  const DiscoverButton = () => {
+    return (
+      <>
+        {isLoggedIn && (
+          <button
+            className="bg-transparent cursor-pointer border-none color-white font-synthesis-small-caps"
+            onClick={() => {
+              navigate("/discover");
+              setIsHamburgerOpen(false);
+            }}
+          >
+            Discover
+          </button>
+        )}
+      </>
+    );
+  };
+
   return (
     <>
       <nav className="bg-black text-white h-14 sm:h-20 pr-4 pl-4 sm:pr-10 sm:pl-10">
         <div className="flex flex-justify-between flex-items-center h-full">
           {/* left nav contents */}
           <div className="flex flex-items-center cursor-pointer" onClick={() => navigate("")}>
-              <img src={logo} className="h-8 sm:h-12 mr-2"></img>
-              <h1>Song Exchange</h1>
+            <img src={logo} className="h-8 sm:h-12 mr-2"></img>
+            <h1>Song Exchange</h1>
           </div>
           {/* right nav contents */}
           <div className="hidden sm:block">
+            <DiscoverButton />
             <LogInButton />
             <LogOutButton />
             <AccountButton />
@@ -126,6 +145,7 @@ function Navbar() {
                     onClick={() => setIsHamburgerOpen(false)}
                   ></img>
                 )}
+                <DiscoverButton />
                 <LogInButton />
                 <LogOutButton />
                 <AccountButton />

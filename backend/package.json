@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./build/src/app.js"
+    "start": "prisma generate && prisma migrate dev && prisma migrate deploy && nodemon ./build/src/app.js"
   },
   "dependencies": {
     "@apollo/server": "^4.9.0",

@@ -16,7 +16,7 @@ import { Request, Response } from "express";
 
 dotenv.config();
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 3636;
 
 const httpServer = http.createServer(app);
 

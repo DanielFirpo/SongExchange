@@ -1,0 +1,21 @@
+version: '3'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    env_file: ./frontend/.env
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3636:3636"
+    env_file: ./backend/.env
+    depends_on:
+      - postgres  # Adding this dependency
+  postgres:
+    image: postgres:latest
+    env_file: ./.env
