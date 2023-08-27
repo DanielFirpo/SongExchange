@@ -4,13 +4,7 @@ import App from "./App.tsx";
 import ErrorPage from "./components/pages/ErrorPage";
 import "./index.css";
 import "virtual:uno.css";
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloProvider,
-  HttpLink,
-  from,
-} from "@apollo/client";
+import { ApolloClient, InMemoryCache, ApolloProvider, HttpLink, from } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 import { GraphQLError } from "graphql";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -46,7 +40,6 @@ const client = new ApolloClient({
 
 //RTK query setup
 
-
 //react router setup
 const router = createBrowserRouter([
   {
@@ -56,7 +49,16 @@ const router = createBrowserRouter([
     children: [
       {
         path: "", // Empty path for the base domain
-        element: <h1 className="w-full text-center mt-36">Static landing page coming soon...</h1>, // Render this component for the base domain
+        element: (
+          <div className="flex flex-col flex-items-center flex-justify-center">
+            <h1 className="w-full text-center mt-36">Static landing page coming soon...</h1>
+            <a href={import.meta.env.VITE_BACKEND_URL + "/spotifyauth"}>
+              <button className="bg-transparent p-4 outline cursor-pointer border-none color-black font-synthesis-small-caps">
+                Log In with Spotify
+              </button>
+            </a>
+          </div>
+        ), // Render this component for the base domain
       },
       {
         path: "welcome",

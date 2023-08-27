@@ -12,6 +12,7 @@ interface ExportPopupProps {
 function ExportPopup(props: ExportPopupProps) {
   const [includeCommonSongs, setIncludeCommonSongs] = useState(false);
   const [onlyExportPlaylistsWithCommonalities, setOnlyExportPlaylistsWithCommonalities] = useState(true);
+  const [isExportLoading, setIsExportLoading] = useState<boolean>(false);
 
   return (
     <div className="bg-amber absolute ml-a mr-a w-2xl h-xs left-0 right-0 flex flex-col justify-center top-30">
@@ -43,10 +44,12 @@ function ExportPopup(props: ExportPopupProps) {
       <button
         onClick={(e) => {
           props.exportClickedCallback(e, includeCommonSongs, onlyExportPlaylistsWithCommonalities);
+          setIsExportLoading(true); 
         }}
       >
         EXPORT
       </button>
+      { isExportLoading && <div>Exporting...</div> }
     </div>
   );
 }

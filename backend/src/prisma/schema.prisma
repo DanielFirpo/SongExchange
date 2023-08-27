@@ -8,12 +8,16 @@ datasource db {
 }
 
 model User {
-  id                  String     @id @default(uuid())
-  spotifyUsername     String     @unique
-  spotifyRefreshToken String
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
-  playlists           Playlist[]
+  id                           String     @id @default(uuid())
+  spotifyUsername              String     @unique
+  spotifyRefreshToken          String
+  spotifyAccessToken           String
+  spotifyAccessTokenExpiration BigInt
+  isLoggedIn                   Boolean    @default(true)
+  isSuspended                  Boolean    @default(false)
+  createdAt                    DateTime   @default(now())
+  updatedAt                    DateTime   @updatedAt
+  playlists                    Playlist[]
 }
 
 model Playlist {
@@ -22,6 +26,7 @@ model Playlist {
   ownedBy   User               @relation(fields: [userId], references: [id])
   spotifyId String? //when null, it means it's the user's liked songs instead of a public playlist
   name      String
+  image     String?
   songs     SongsInPlaylists[]
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt

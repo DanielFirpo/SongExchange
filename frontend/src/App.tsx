@@ -12,16 +12,17 @@ function App() {
   useEffect(() => {
     async function checkIfLoggedIn() {
       try {
-        await axios(import.meta.env.VITE_BACKEND_URL + "/spotifyauth/me", {
+        const response = await axios(import.meta.env.VITE_BACKEND_URL + "/spotifyauth/me", {
           method: "get",
           withCredentials: true,
         });
-        dispatch(setIsLoggedIn({ isLoggedIn: true }));
+        console.log(response);
+        dispatch(setIsLoggedIn({ isLoggedIn: true, username: response.data.spotifyId}));
       } catch (err: any) {
         if (isAxiosError(err)) {
           err as AxiosError;
           if (err.response?.status === 401) {
-            dispatch(setIsLoggedIn({ isLoggedIn: false }));
+            dispatch(setIsLoggedIn({ isLoggedIn: false, username: undefined}));
           }
         }
       }

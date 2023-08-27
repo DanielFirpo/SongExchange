@@ -3,7 +3,7 @@ type PageContainerProps = {
 };
 
 function PageContainer(props: PageContainerProps) {
-  return <>{props.children}</>;
+  return <div className="max-w-4xl m-auto">{props.children}</div>;
 }
 
 export default PageContainer;

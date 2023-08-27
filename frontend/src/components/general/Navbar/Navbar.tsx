@@ -61,7 +61,7 @@ function Navbar() {
                 });
                 navigate("");
                 setIsHamburgerOpen(false);
-                dispatch(setIsLoggedIn({ isLoggedIn: false }));
+                dispatch(setIsLoggedIn({ isLoggedIn: false, username: undefined }));
               } catch {}
             }}
           >

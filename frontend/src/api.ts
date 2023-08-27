@@ -3,7 +3,6 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 export interface SpotifyPlaylist {
     name: string,
     image: string,
-    preview: string,
     id: string,
     count: number
 }
@@ -15,9 +14,10 @@ export type PlaylistItem = {
 
 interface Recommendations {
   users: RecommendationUser[];
+  noMatches: boolean;
 }
 
-interface RecommendationUser {
+export interface RecommendationUser {
   name: string;
   commonality: number;
   totalSongsInCommon: number;
@@ -56,7 +56,6 @@ export const api = createApi({
         response.map((item) => ({
           name: item.name,
           image: item.images?.[0]?.url ? item.images[0].url : undefined,
-          preview: item.audioPreview,
           id: item.id,
           count: item.tracks.total,
         })),

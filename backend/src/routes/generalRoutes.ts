@@ -26,7 +26,7 @@ router.get("/playlists", loggedInOnly, async function (req: Request, res: Respon
 router.post("/playlists", loggedInOnly, async function (req: Request, res: Response, next: Function) {
   const user = res.locals.user;
   console.log("request", req.body);
-  req.body.forEach(async (playlist: any) => {
+  for (let playlist of req.body) {
     const songs = await getSongsInSpotifyPlaylist(user.spotifyId, playlist.id);
     const formattedSongs = songs.map((song): Omit<Song, "id"> => {
       return {
@@ -38,7 +38,7 @@ router.post("/playlists", loggedInOnly, async function (req: Request, res: Respo
     console.log(formattedSongs);
 
     createPlaylist(user.spotifyId, playlist.id, playlist.name, formattedSongs);
-  });
+  }
 
   res.status(200).json({ data: "Success!" });
 });
@@ -79,7 +79,12 @@ router.post("/export", loggedInOnly, async function (req: Request, res: Response
     });
   }
 
-  const result = await createSpotifyPlaylist(input.songs, user.spotifyId, input.playlistName, input.playlistDescription);
+  const result = await createSpotifyPlaylist(
+    input.songs,
+    user.spotifyId,
+    input.playlistName,
+    input.playlistDescription
+  );
 
   if (result?.status == 201) {
     return res.status(200).json(result?.data);

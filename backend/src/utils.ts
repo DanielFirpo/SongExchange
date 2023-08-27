@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getUserBySpotifyID } from "./prisma/prismaUtils/userUtils";
-
+const jwt = require("jsonwebtoken");
 //general utilities file
 
 export async function getSpotifyLikedSongs(spotifyId: string, callback: Function) {
@@ -75,11 +75,14 @@ export async function getSongsInSpotifyPlaylist(spotifyId: string, playlistId: s
   return [];
 }
 
-//TODO: add access token, token expiration and isLoggedIn fields to DB.
-//Only get new token if expired, otherwise just return one from DB.
-// If isLoggedOut, do not grant new tokens.
 export async function getNewSpotifyAccessToken(spotifyId: string) {
   const user = await getUserBySpotifyID(spotifyId);
+
+  if (user?.spotifyAccessTokenExpiration) {
+    if (new Date().getTime() < user?.spotifyAccessTokenExpiration) {
+      return user.spotifyAccessToken;
+    }
+  }
 
   const tokenResponse = await axios({
     url: "https://accounts.spotify.com/api/token",
@@ -154,4 +157,10 @@ export async function createSpotifyPlaylist(
     console.error("error setting playlist!", err);
     return undefined;
   }
+}
+
+export function generateJWT(spotifyId: string): string {
+  return jwt.sign({ spotifyId: spotifyId }, process.env.JWT_SECRET, {
+    expiresIn: "3600s",
+  });
 }
