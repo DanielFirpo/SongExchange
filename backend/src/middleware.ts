@@ -21,20 +21,24 @@ export async function decodeToken(req: Request, res: Response, next: Function) {
       res.locals.user = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) {
-        console.log("jwt", err)
+        console.log("jwt", err);
         let spotifyId = jwt.decode(token).spotifyId;
         const existingUser = await getUserBySpotifyID(spotifyId);
-        console.log(existingUser, spotifyId)
+        console.log(existingUser, spotifyId);
         if (existingUser?.isLoggedIn && !existingUser?.isSuspended) {
-          console.log("granting new token")
+          console.log("granting new token");
           const expiration = new Date();
           expiration.setDate(expiration.getDate() + 15); //expires in 15 days
 
-          res.cookie("token", generateJWT(spotifyId), {
+          const newToken = generateJWT(spotifyId);
+
+          res.cookie("token", newToken, {
             secure: process.env.NODE_ENV !== "development",
             httpOnly: true,
             expires: expiration,
           });
+
+          res.locals.user = jwt.verify(newToken, process.env.JWT_SECRET);
         }
       } else {
         console.log("Issue decoding token, client sent fake token?", err);
@@ -42,8 +46,7 @@ export async function decodeToken(req: Request, res: Response, next: Function) {
         res.clearCookie("token");
       }
     }
-  }
-  else {
+  } else {
     res.locals.user = undefined;
   }
   next();

@@ -4,6 +4,7 @@ import { createPlaylist, getUserPlaylists, getUsersWithMostSongsInCommon } from 
 import { Song } from "@prisma/client";
 import { loggedInOnly } from "../middleware";
 import { IsArray, IsString, validate } from "class-validator";
+import { createUser } from "../prisma/prismaUtils/userUtils";
 
 const express = require("express");
 const router = express.Router();
@@ -91,6 +92,44 @@ router.post("/export", loggedInOnly, async function (req: Request, res: Response
   } else {
     return res.status(500).json("Error creating playlist with Spotify API");
   }
+});
+
+router.post("/adminadduser", loggedInOnly, async function (req: Request, res: Response, next: Function) {
+  const user = res.locals.user;
+  const spotifyId = user.spotifyId;
+
+  if (spotifyId !== "trtld2") {
+    return res.status(401).json({ error: "Not authorized" });
+  }
+
+  const playlistId = req.body.id;
+  const playlistOwner = req.body.owner;
+  let songs = await getSongsInSpotifyPlaylist(spotifyId, playlistId);
+
+  await createUser(playlistOwner, "", "", 0);
+
+  console.log(
+    "songs leng",
+    songs.map((s) => s.track.name)
+  );
+
+  await createPlaylist(
+    playlistOwner,
+    undefined,
+    "Liked Songs",
+    songs.map((song) => {
+      const songArtist: string = song.track.artists[0].name;
+      const songName: string = song.track.name;
+      const songId: string = song.track.id;
+      return {
+        name: songName,
+        artist: songArtist,
+        spotifyId: songId,
+      };
+    })
+  );
+
+  return res.status(200).json({ data: "Success!" });
 });
 
 export default router;

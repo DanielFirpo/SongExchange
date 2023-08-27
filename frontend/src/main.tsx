@@ -15,6 +15,7 @@ import UserPage from "./components/pages/UserPage/UserPage.tsx";
 import AccountPage from "./components/pages/AccountPage/AccountPage.tsx";
 import { Provider } from "react-redux";
 import { store } from "./store.ts";
+import AdminAddUser from "./components/pages/AdminAddUser/AdminAddUser.tsx";
 
 //Apollo GQL setup
 const errorLink = onError(({ graphQLErrors }) => {
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
       {
         path: "welcome",
         element: <WelcomePage />,
+      },
+      {
+        path: "adminadduser",
+        element: <AdminAddUser />,
       },
       {
         path: "discover",

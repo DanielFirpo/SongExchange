@@ -57,7 +57,7 @@ router.get("/return", async function (req: Request, res: Response, next: Functio
     });
 
     const accessToken = tokenResponse.data.access_token;
-    const accessExpiration = new Date().getTime() + (tokenResponse.data.expires_in * 1000);
+    const accessExpiration = new Date().getTime() + tokenResponse.data.expires_in * 1000;
     const spotifyRefreshToken = tokenResponse.data.refresh_token;
 
     const userInfoResponse = await axios({
@@ -106,16 +106,17 @@ router.get("/return", async function (req: Request, res: Response, next: Functio
             spotifyId,
             undefined,
             "Liked Songs",
-            result.map((song) => {
-              const songArtist: string = song.track.artists[0].name;
-              const songName: string = song.track.name;
-              const songId: string = song.track.id;
-              return {
-                name: songName,
-                artist: songArtist,
-                spotifyId: songId,
-              };
-            })
+            result
+              .map((song) => {
+                const songArtist: string = song.track.artists[0].name;
+                const songName: string = song.track.name;
+                const songId: string = song.track.id;
+                return {
+                  name: songName,
+                  artist: songArtist,
+                  spotifyId: songId,
+                };
+              }) 
           );
         });
       }

@@ -77,9 +77,16 @@ export const api = createApi({
         body: playlist,
       }),
     }),
+    adminAddUser: builder.mutation<any, any>({
+      query: (playlist: {id: string, owner: string}) => ({
+        url: 'adminadduser',
+        method: 'POST',
+        body: playlist,
+      }),
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetUserPlaylistsQuery, useSetPlaylistsMutation, useGetRecommendationsQuery, useExportPlaylistMutation } = api
+export const { useGetUserPlaylistsQuery, useSetPlaylistsMutation, useGetRecommendationsQuery, useExportPlaylistMutation, useAdminAddUserMutation } = api

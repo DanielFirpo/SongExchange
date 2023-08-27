@@ -47,9 +47,9 @@ function DiscoverPage() {
             <ExportButton name={data?.users[0].name} />
           </div>
           <h3 className="text-center">Other matches:</h3>
-          {data.users.slice(1).map((user) => {
+          {data.users.slice(1).map((user, index) => {
             return (
-              <div className="flex w-auto border-2 border-black border-solid">
+              <div key={"usersummary" + index} className="flex w-auto border-2 border-black border-solid">
                 <UserSummary {...user} />
                 <ExportButton name={user.name} />
               </div>
@@ -60,16 +60,16 @@ function DiscoverPage() {
       {data?.noMatches && (
         <>
           <div className="text-center">
-            <h1>Uh oh!</h1>
+            <h1>Oh no!</h1>
             <h2>We couldn't find anyone with similar taste to you.</h2>
             <h3>
               Please check back later when more users have signed up! For now, you might enjoy listening to some
               favorite songs from one of these randomly selected users:
             </h3>
           </div>
-          {data.users.map((user) => {
+          {data.users.map((user, index) => {
             return (
-              <div className="flex w-auto border-2 border-black border-solid">
+              <div key={"usersummary" + index} className="flex w-auto border-2 border-black border-solid">
                 <UserSummary {...user} />
                 <ExportButton name={user.name} />
               </div>

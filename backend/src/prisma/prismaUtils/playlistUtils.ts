@@ -18,7 +18,7 @@ export async function createPlaylist(
 
     const existingSongs = await prisma.song.findMany({
       where: {
-        spotifyId: { in: songs.map((song) => song.spotifyId) },
+        spotifyId: { in: songs.map((song) => song.spotifyId).filter((song) => song) },
       },
     });
 
@@ -36,13 +36,28 @@ export async function createPlaylist(
     if (existingPlaylist && existingPlaylist.length > 0) return null;
 
     //filter out songs already in the db
-    const uniqueSongs = songs.filter((song) => {
+    let uniqueSongs = songs.filter((song) => {
       return !existingSongs.find((existingSong) => {
         return song.spotifyId == existingSong.spotifyId;
       });
     });
 
     console.log("songs after unique check", uniqueSongs.length);
+
+    function removeDuplicates(songs: any) {
+      let jsonObject = songs.map((song: any) =>
+        JSON.stringify(song)
+      );
+      console.log("json oooo", jsonObject);
+      let uniqueSet = new Set(jsonObject);
+      console.log("json oooo", uniqueSet);
+      return Array.from(uniqueSet).map((item: any) => JSON.parse(item));
+    }
+
+    uniqueSongs = removeDuplicates(uniqueSongs);
+    console.log("songs after dupe check", uniqueSongs.length);
+
+    uniqueSongs = uniqueSongs.filter((song) => song.spotifyId)//remove nulls
 
     const newPlaylist = await prisma.playlist.create({
       data: {
@@ -73,7 +88,7 @@ export async function createPlaylist(
       })
     );
     //Connect songs already existing in the DB to this playlist aswell
-    const asdasd = await prisma.playlist.update({
+    await prisma.playlist.update({
       where: { id: newPlaylist.id },
       data: {
         songs: {
@@ -87,8 +102,6 @@ export async function createPlaylist(
         },
       },
     });
-
-    console.log("asdasd", asdasd);
 
     return newPlaylist;
   } catch (error: any) {

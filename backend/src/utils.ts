@@ -59,20 +59,20 @@ export async function getSongsInSpotifyPlaylist(spotifyId: string, playlistId: s
 
   try {
     while (nextPage) {
+      console.log("page");
       const playlistSongsResponse = await axios({
         url: nextPage,
         method: "get",
         headers: { Authorization: "Bearer " + accessToken },
       });
-      console.log("got page");
       nextPage = playlistSongsResponse.data.next;
+      console.log("got pagem next:", nextPage);
       songs = songs.concat(playlistSongsResponse.data.items);
-      return songs;
     }
   } catch (err) {
     console.error("error gettin playlist songs!");
   }
-  return [];
+  return songs;
 }
 
 export async function getNewSpotifyAccessToken(spotifyId: string) {
