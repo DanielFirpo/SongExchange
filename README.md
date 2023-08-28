@@ -31,7 +31,7 @@
     
 
 <h4>
-  <a href="[https://github.com/DanielFirpo/SongExchange/](https://songexchange.online/)">Visit Site</a>
+  <a href="https://songexchange.online/">Visit Site</a>
   <span> · </span>
     <a href="https://github.com/DanielFirpo/SongExchange/issues/">Report Bug</a>
   <span> · </span>
