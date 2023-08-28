@@ -4,7 +4,6 @@ import prisma from "../prismaConnection";
 //util file for interactions with the database involving users
 
 export async function getUserBySpotifyID(spotifyUsername: string): Promise<User | null | undefined> {
-  console.log("WORK MOOMOOMO");
   try {
     const user: User | null = await prisma.user.findUnique({
       where: {

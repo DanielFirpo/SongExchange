@@ -32,8 +32,6 @@ export async function getSpotifyPlaylists(spotifyId: string) {
   let nextPage = `https://api.spotify.com/v1/users/${spotifyId}/playlists?limit=50`;
   let playlists: any[] = [];
 
-  console.log("access", accessToken, "id", spotifyId);
-
   try {
     while (nextPage) {
       const playlistsResponse = await axios({
@@ -59,7 +57,6 @@ export async function getSongsInSpotifyPlaylist(spotifyId: string, playlistId: s
 
   try {
     while (nextPage) {
-      console.log("page");
       const playlistSongsResponse = await axios({
         url: nextPage,
         method: "get",

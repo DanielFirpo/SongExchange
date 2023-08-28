@@ -26,7 +26,6 @@ router.get("/playlists", loggedInOnly, async function (req: Request, res: Respon
 //set playlist
 router.post("/playlists", loggedInOnly, async function (req: Request, res: Response, next: Function) {
   const user = res.locals.user;
-  console.log("request", req.body);
   for (let playlist of req.body) {
     const songs = await getSongsInSpotifyPlaylist(user.spotifyId, playlist.id);
     const formattedSongs = songs.map((song): Omit<Song, "id"> => {
@@ -36,7 +35,6 @@ router.post("/playlists", loggedInOnly, async function (req: Request, res: Respo
         artist: song.track.artists[0].name,
       };
     });
-    console.log(formattedSongs);
 
     createPlaylist(user.spotifyId, playlist.id, playlist.name, formattedSongs);
   }
@@ -107,11 +105,6 @@ router.post("/adminadduser", loggedInOnly, async function (req: Request, res: Re
   let songs = await getSongsInSpotifyPlaylist(spotifyId, playlistId);
 
   await createUser(playlistOwner, "", "", 0);
-
-  console.log(
-    "songs leng",
-    songs.map((s) => s.track.name)
-  );
 
   await createPlaylist(
     playlistOwner,

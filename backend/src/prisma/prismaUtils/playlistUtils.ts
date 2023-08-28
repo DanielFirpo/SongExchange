@@ -11,10 +11,7 @@ export async function createPlaylist(
   songs: Omit<Song, "id">[]
 ): Promise<Playlist | null> {
   try {
-    console.log("userid", userId);
     const user = await getUserBySpotifyID(userId);
-
-    console.log("user", user);
 
     const existingSongs = await prisma.song.findMany({
       where: {
@@ -22,7 +19,6 @@ export async function createPlaylist(
       },
     });
 
-    console.log("songs before unique check", songs.length);
     let existingPlaylist = null;
     if (playlistId) {
       existingPlaylist = await prisma.song.findMany({
@@ -42,18 +38,13 @@ export async function createPlaylist(
       });
     });
 
-    console.log("songs after unique check", uniqueSongs.length);
-
     function removeDuplicates(songs: any) {
       let jsonObject = songs.map((song: any) => JSON.stringify(song));
-      console.log("json oooo", jsonObject);
       let uniqueSet = new Set(jsonObject);
-      console.log("json oooo", uniqueSet);
       return Array.from(uniqueSet).map((item: any) => JSON.parse(item));
     }
 
     uniqueSongs = removeDuplicates(uniqueSongs);
-    console.log("songs after dupe check", uniqueSongs.length);
 
     uniqueSongs = uniqueSongs.filter((song) => song.spotifyId); //remove nulls
 
@@ -77,14 +68,6 @@ export async function createPlaylist(
       },
     });
 
-    console.log(
-      "newPlaylist.id",
-      newPlaylist.id,
-      "existingSongs",
-      existingSongs.map((song) => {
-        return { id: song.id };
-      })
-    );
     //Connect songs already existing in the DB to this playlist aswell
     await prisma.playlist.update({
       where: { id: newPlaylist.id },
@@ -108,7 +91,6 @@ export async function createPlaylist(
 }
 
 export async function getUserPlaylists(spotifyUsername: string | undefined) {
-  console.log("getting playlists for ", spotifyUsername);
   const user = await prisma.user.findUnique({
     where: {
       spotifyUsername: spotifyUsername,
@@ -121,7 +103,6 @@ export async function getUserPlaylists(spotifyUsername: string | undefined) {
   if (!user) {
     throw new Error(`User with username ${spotifyUsername} not found`);
   }
-  console.log("GOT USER PLAYLIIIIIIST", user.playlists);
   return user.playlists;
 }
 
@@ -216,7 +197,6 @@ export async function getUsersWithMostSongsInCommon(spotifyUsername: string): Pr
     }
 
     usersWithMatchingPlaylists = usersWithMatchingPlaylists.filter((user) => {
-      console.log(user.spotifyUsername, "=", spotifyUsername);
       return user.spotifyUsername != spotifyUsername;
     });
 

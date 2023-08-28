@@ -68,8 +68,6 @@ router.get("/return", async function (req: Request, res: Response, next: Functio
 
     const spotifyId = userInfoResponse.data.id;
 
-    console.log("USER INFO", userInfoResponse.data);
-
     const existingUser = await getUserBySpotifyID(spotifyId);
 
     if (existingUser?.isSuspended) {
@@ -99,7 +97,6 @@ router.get("/return", async function (req: Request, res: Response, next: Functio
       const newUser = await createUser(spotifyId, spotifyRefreshToken, accessToken, accessExpiration);
 
       if (newUser) {
-        console.log("new user", newUser);
         //get their liked songs and add them to the db
         await getSpotifyLikedSongs(spotifyId, async (result: any[]) => {
           await createPlaylist(

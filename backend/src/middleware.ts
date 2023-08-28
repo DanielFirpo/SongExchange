@@ -24,7 +24,6 @@ export async function decodeToken(req: Request, res: Response, next: Function) {
         console.log("jwt", err);
         let spotifyId = jwt.decode(token).spotifyId;
         const existingUser = await getUserBySpotifyID(spotifyId);
-        console.log(existingUser, spotifyId);
         if (existingUser?.isLoggedIn && !existingUser?.isSuspended) {
           console.log("granting new token");
           const expiration = new Date();

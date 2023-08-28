@@ -19,7 +19,6 @@ export const usersResolver = {
       context: any,
       info: GraphQLResolveInfo
     ) {
-      console.log("getting user playlists");
       if (!context.user) {
         console.log("unauthorized!", context);
         return {
