@@ -42,7 +42,7 @@
 
 ## About the Project 
 
-Helps user's find new music by matching them based on amount of songs they have in common. They can then export the songs they don't have in common to a new Spotify playlist. The idea is that they will probably enjoy the songs that they don't have in common since their taste in music is so similar. 
+Helps users find new music by matching them based on amount of songs they have in common. They can then export the songs they don't have in common to a new Spotify playlist. The idea is that they will probably enjoy the songs that they don't have in common since their taste in music is so similar. 
 
 
 ## Built With 
