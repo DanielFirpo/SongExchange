@@ -45,9 +45,7 @@ export async function createPlaylist(
     console.log("songs after unique check", uniqueSongs.length);
 
     function removeDuplicates(songs: any) {
-      let jsonObject = songs.map((song: any) =>
-        JSON.stringify(song)
-      );
+      let jsonObject = songs.map((song: any) => JSON.stringify(song));
       console.log("json oooo", jsonObject);
       let uniqueSet = new Set(jsonObject);
       console.log("json oooo", uniqueSet);
@@ -57,7 +55,7 @@ export async function createPlaylist(
     uniqueSongs = removeDuplicates(uniqueSongs);
     console.log("songs after dupe check", uniqueSongs.length);
 
-    uniqueSongs = uniqueSongs.filter((song) => song.spotifyId)//remove nulls
+    uniqueSongs = uniqueSongs.filter((song) => song.spotifyId); //remove nulls
 
     const newPlaylist = await prisma.playlist.create({
       data: {
@@ -284,6 +282,7 @@ export async function getUsersWithMostSongsInCommon(spotifyUsername: string): Pr
 
       userRecommendation.commonality =
         commonCount + uncommonCount != 0 ? (commonCount / (commonCount + uncommonCount)) * 100 : 0;
+      userRecommendation.commonality = Math.round(userRecommendation.commonality);
       userRecommendation.totalSongsInCommon = commonCount;
       userRecommendation.totalSongsNotInCommon = uncommonCount;
 
@@ -292,7 +291,7 @@ export async function getUsersWithMostSongsInCommon(spotifyUsername: string): Pr
 
     //sort results by commonality
     responseForClient.users = responseForClient.users.sort((a, b) => {
-      return a.commonality - b.commonality;
+      return b.commonality - a.commonality;
     });
 
     //max 30 users
