@@ -1,0 +1,10 @@
+optimize database /recommendation query
+Add fancy static landing page
+Add fancy carousel of users across full width of discover screen, really animated.
+ - When they click one it will scroll page down to more details about that user
+refresh user's playlists on... log in? by snapshot id
+account page delete acc/edit playlists
+maybe rephrase branding as matching with other users
+Add playlist images
+Add public username field to db, only display public username isntead of private
+
