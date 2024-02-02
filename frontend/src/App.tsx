@@ -18,7 +18,7 @@ function App() {
         });
         console.log(response);
         dispatch(setIsLoggedIn({ isLoggedIn: true, username: response.data.spotifyId}));
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isAxiosError(err)) {
           err as AxiosError;
           if (err.response?.status === 401) {

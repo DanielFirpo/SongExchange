@@ -17,7 +17,7 @@ function DiscoverPage() {
   if (error) return <>error</>;
   if (isLoading || !data) return <>loading...</>;
 
-  function ExportButton(props: any) {
+  function ExportButton(props: {name: string}) {
     return (
       <button
         className="cursor-pointer"
@@ -97,7 +97,7 @@ function DiscoverPage() {
     const songsToExport: string[] = [];
 
     users.forEach((user) => {
-      for (let playlist of user.playlists) {
+      for (const playlist of user.playlists) {
         if (onlyExportPlaylistsWithCommonalities) {
           if (!playlist.songsInCommon.length) {
             continue;
